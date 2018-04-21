@@ -44,7 +44,7 @@ namespace NMOMP2._0
         // calculates PHIi(A,B,G)
         public static double getFi(int i, double alpha, double beta, double gamma)
         {
-            return i < 9 ? firstFi(i, alpha, beta, gamma) : secondFi(i, alpha, beta, gamma);
+            return i < 8 ? firstFi(i, alpha, beta, gamma) : secondFi(i, alpha, beta, gamma);
         }
 
         // functions that calculated deriviates 
@@ -124,15 +124,15 @@ namespace NMOMP2._0
         // functinons delegate calculation to more specified functions depending on their index 
         private static double diAlpha(int i, double alpha, double beta, double gamma)
         {
-            return i < 9 ? diAlphaFirst(i, alpha, beta, gamma) : diAlphaSecond(i, alpha, beta, gamma);
+            return i < 8 ? diAlphaFirst(i, alpha, beta, gamma) : diAlphaSecond(i, alpha, beta, gamma);
         }
         private static double diBeta(int i, double alpha, double beta, double gamma)
         {
-            return i < 9 ? diBetaFirst(i, alpha, beta, gamma) : diBetaSecond(i, alpha, beta, gamma);
+            return i < 8 ? diBetaFirst(i, alpha, beta, gamma) : diBetaSecond(i, alpha, beta, gamma);
         }
         private static double diGamma(int i, double alpha, double beta, double gamma)
         {
-            return i < 9 ? diGammaFirst(i, alpha, beta, gamma) : diGammaSecond(i, alpha, beta, gamma);
+            return i < 8 ? diGammaFirst(i, alpha, beta, gamma) : diGammaSecond(i, alpha, beta, gamma);
         }
 
         // calculates ( Di PHIi(A,B,G) ) / ( Di variable )
@@ -144,9 +144,9 @@ namespace NMOMP2._0
 
             switch (variable)
             {
-                case 1: result = diAlpha(i, alpha, beta, gamma); break;
-                case 2: result = diBeta(i, alpha, beta, gamma); break;
-                case 3: result = diGamma(i, alpha, beta, gamma); break;
+                case 0: result = diAlpha(i, alpha, beta, gamma); break;
+                case 1: result = diBeta(i, alpha, beta, gamma); break;
+                case 2: result = diGamma(i, alpha, beta, gamma); break;
             }
 
             return result;

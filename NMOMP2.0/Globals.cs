@@ -34,5 +34,27 @@ namespace NMOMP2._0
             {18, new int[]{1,2,2} },
             {19, new int[]{0,1,2} },
         };
+
+        private static double[][] gaussNodes()
+        {
+            double[][] res = new double[27][];
+            double[] val = new double[] { -1 * Math.Sqrt(0.6), 0, Math.Sqrt(0.6) };
+
+            int counter = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        res[counter] = new double[] { val[i], val[j], val[k] };
+                        ++counter;
+                    }
+                }
+            }
+
+            return res;
+        }
+        public static double[][] GaussNodes = gaussNodes();
     }
 }
