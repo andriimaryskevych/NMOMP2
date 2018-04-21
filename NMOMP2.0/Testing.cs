@@ -79,6 +79,44 @@ namespace NMOMP2._0
             //{
             //    Console.WriteLine(a);
             //}
+
+
+            // #7: one one
+            //Console.WriteLine("Here");
+            //double[,] value = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3).one_two(new double[1,1,1]);
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    for (int j = 0; j < 20; j++)
+            //    {
+            //        Console.Write(value[i, j]);
+            //    }
+            //    Console.WriteLine();
+            //}
+
+
+            // #8: rotating
+            double[,] arr = {
+                { 1,2,3 },
+                { 4,5,6 },
+                { 7,8,9 }
+            };
+            double[,] newArr = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3).rotate(arr);
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.Write(arr[i,j]);
+                }
+                Console.WriteLine();
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.Write(newArr[i,j]);
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

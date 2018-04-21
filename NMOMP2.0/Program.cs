@@ -10,10 +10,10 @@ namespace NMOMP2._0
     {
         static void Main(string[] args)
         {
-            //Testing test = new Testing();
+            Testing test = new Testing();
 
-            FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 4, 4, 4);
-            solve.Start();
+            //FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 4, 4, 4);
+            //solve.Start();
         }
     }
 }

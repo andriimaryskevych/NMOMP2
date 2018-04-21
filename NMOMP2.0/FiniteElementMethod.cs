@@ -238,7 +238,7 @@ namespace NMOMP2._0
             }
 
             // calc dfixyz
-            // col is free values
+            // col is free column
             double[] col = new double[3];
             // i stands for gausNode
             // phi stands for i-th function
@@ -263,6 +263,130 @@ namespace NMOMP2._0
                     }
                 }
             }
+
+            // calc mge
+            double[,] mge = new double[60, 60];
+            for (int i = 0; i < 60; i++)
+            {
+                for (int j = 0; j < 60; j++)
+                {
+                    if (i > j)
+                    {
+                        mge[i, j] = mge[j, i];
+                    }
+                    else {
+
+                    }
+                }
+            }
+        }
+
+        public double[,] one_one(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        res[i, j] = 11;
+                    }
+                }
+            }
+            return res;
+        }
+        public double[,] two_two(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        res[i, j] = 22;
+                    }
+                }
+            }
+            return res;
+        }
+        public double[,] three_three(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        res[i, j] = 33;
+                    }
+                }
+            }
+            return res;
+        }
+
+        public double[,] one_two(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    res[i, j] = 12;                    
+                }
+            }
+            return res;
+        }
+        public double[,] one_three(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    res[i, j] = 13;
+                }
+            }
+            return res;
+        }
+        public double[,] two_three(double[,,] dfixyz)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    res[i, j] = 23;
+                }
+            }
+            return res;
+        }
+
+        public double[,] rotate(double[,] toRotate)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    res[i, j] = toRotate[j, i];
+                }
+            }
+            return res;
         }
     }
 }
