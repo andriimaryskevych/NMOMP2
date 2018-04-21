@@ -26,12 +26,12 @@ namespace NMOMP2._0
 
             // #2: Testing modified SquareGenerator
 
-            double[][] fi = new SquareGenerator(-1, 0, 1).getItInSingleDArray();
-            Console.WriteLine(fi.Length);
-            for (int i = 0; i < fi.Length; i++)
-            {
-                Console.WriteLine($"{fi[i][0]} {fi[i][1]} {fi[i][2]}");
-            }
+            //double[][] fi = new SquareGenerator(-1, 0, 1).getItInSingleDArray();
+            //Console.WriteLine(fi.Length);
+            //for (int i = 0; i < fi.Length; i++)
+            //{
+            //    Console.WriteLine($"{fi[i][0],2} {fi[i][1],2} {fi[i][2],2}");
+            //}
         }
     }
 }

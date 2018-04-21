@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FI.cs" />
     <Compile Include="FiniteElementMethod.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Program.cs" />
