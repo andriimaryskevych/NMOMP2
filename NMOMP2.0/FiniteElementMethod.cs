@@ -26,6 +26,12 @@ namespace NMOMP2._0
         public int n;
         public int k;
 
+        public double E = 1;
+        public double v;
+        public double lam;
+        public double mu;
+
+
         public int nqp;
         // I changed order here:
         // As first argument I set global number and as a second one i set vector of lenght 3 that contains exact point coord
@@ -45,7 +51,7 @@ namespace NMOMP2._0
         private double SCALE_Y;
         private double SCALE_Z;
 
-        public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k)
+        public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k, double _v)
         {
             x = _x;
             y = _y;
@@ -54,6 +60,10 @@ namespace NMOMP2._0
             m = _m;
             n = _n;
             k = _k;
+
+            v = _v;
+            lam = E / ((1 + v) * (1 - 2 * v));
+            mu = E / (2 * (1 + v));
 
             SCALE_X = (double)x / m;
             SCALE_Y = (double)y / n;
@@ -175,14 +185,15 @@ namespace NMOMP2._0
             // defined once and used for each finite element
             double[,,] dxyzabg = new double[3, 3, 27];
             double[] dj = new double[27];
-            double[,,] dfixyz = new double[27, 20, 30];
+            double[,,] dfixyz = new double[27, 20, 3];
 
             int[] coordinates = NT[number];
 
+            // calc dxyzabg
             double globalCoordinate = 0;
             double diFi = 0;
             double sum = 0;
-
+            
             // i stands for global coordinate
             // j for local
             // k for gaussNode
@@ -194,7 +205,7 @@ namespace NMOMP2._0
                     for (int k = 0; k < 27; k++)
                     {
                         sum = 0;
-                        for (int l = 1; l <= 20; l++)
+                        for (int l = 0; l < 20; l++)
                         {
                             globalCoordinate = AKT[coordinates[l]][i];
                             diFi = DFIABG[k, j, l];
@@ -203,7 +214,55 @@ namespace NMOMP2._0
                         dxyzabg[i, j, k] = sum;
                     }
                 }
-            }           
+            }
+
+            // calc dj
+            double[,] jak;
+            for (int i = 0; i < 27; i++)
+            {
+                jak = new double[3, 3] {
+                    { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
+                    { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
+                    { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
+                };
+                dj[i] = (
+                                jak[0, 0] * jak[1, 1] * jak[2, 2] +
+                                jak[0, 1] * jak[1, 2] * jak[2, 0] +
+                                jak[0, 2] * jak[1, 0] * jak[2, 1]
+                            ) -
+                            (
+                                jak[0, 2] * jak[1, 1] * jak[2, 0] +
+                                jak[0, 1] * jak[1, 0] * jak[2, 2] +
+                                jak[0, 0] * jak[1, 2] * jak[2, 1]
+                            );
+            }
+
+            // calc dfixyz
+            // col is free values
+            double[] col = new double[3];
+            // i stands for gausNode
+            // phi stands for i-th function
+            for (int i = 0; i < 27; i++)
+            {
+                for (int phi = 0; phi < 20; phi++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        col[k] = DFIABG[i, k, phi];
+                    }
+
+                    double[] gaussianSolve = Gaussian.Solve(new double[3, 3] {
+                            { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
+                            { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
+                            { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
+                        }, col);
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        dfixyz[i, phi, k] = gaussianSolve[k];
+                    }
+                }
+            }
         }
     }
 }

@@ -63,6 +63,22 @@ namespace NMOMP2._0
             //{
             //    Console.WriteLine(dfiabg[i, 0, 10]);
             //}
+
+            // #6: Gaussian
+
+            //double[,] matrix = new double[3, 3] {
+            //    { 1, 2, 0 },
+            //    { 4, 5, 0 },
+            //    { 0, 1, 1 }
+            //};
+
+            //double[] res = new double[] { 25, 70, 13 };
+
+            //double[] result = Gaussian.Solve(matrix, res);
+            //foreach (double a in result)
+            //{
+            //    Console.WriteLine(a);
+            //}
         }
     }
 }

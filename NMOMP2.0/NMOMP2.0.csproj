@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="FI.cs" />
     <Compile Include="FiniteElementMethod.cs" />
+    <Compile Include="Gaussian.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
