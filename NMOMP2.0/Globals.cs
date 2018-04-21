@@ -56,5 +56,27 @@ namespace NMOMP2._0
             return res;
         }
         public static double[][] GaussNodes = gaussNodes();
+
+        private static double[,,] countDFIABG()
+        {
+            double[,,] result = new double[27, 3, 20];
+
+            // i stands for number of gauss node
+            // local stands for local variable, like 0 is alpha...
+            // k stands for i-th function
+            for (int i = 0; i < 27; i++)
+            {
+                for (int local = 0; local < 3; local++)
+                {
+                    for (int k = 0; k < 20; k++)
+                    {
+                        result[i, local, k] = FI.getDiFi(local, k, GaussNodes[i][0], GaussNodes[i][1], GaussNodes[i][2]);
+                    }
+                }
+            }
+
+            return result;
+        }
+        public static double[,,] DFIABG = countDFIABG();
     }
 }

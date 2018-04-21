@@ -56,6 +56,13 @@ namespace NMOMP2._0
             //{
             //    Console.WriteLine($"{val[i][0],15} {val[i][1],15} {val[i][2],15}");
             //}
+
+            // #5: DFIABG
+            //double[,,] dfiabg = Globals.DFIABG;
+            //for (int i = 0; i < 27; i++)
+            //{
+            //    Console.WriteLine(dfiabg[i, 0, 10]);
+            //}
         }
     }
 }

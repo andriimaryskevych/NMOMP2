@@ -34,6 +34,9 @@ namespace NMOMP2._0
         private int[,,] local_to_global;
         private Dictionary<int, int[]> adapter = Globals.magicDictionary;
 
+        private double[][] GaussNodes = Globals.GaussNodes;
+        private double[,,] DFIABG = Globals.DFIABG;
+
         int nel;
         // Same as AKT, FE number goes first than it's local value that evaluates to global coord of selected FE
         public int[][] NT;
@@ -72,6 +75,7 @@ namespace NMOMP2._0
             fillMatrixWithIntermidiateVertexes();
             createAKT();
             createNT();
+            getMGE(0);
         }
 
         private void fillMatrixWithMainVertexes()
@@ -164,6 +168,42 @@ namespace NMOMP2._0
                 globalCoordinates[i] = local_to_global[x + delta[0], y + delta[1], z + delta[2]];
             }
             NT[belongElementNumber] = globalCoordinates;
+        }
+
+        private void getMGE(int number)
+        {
+            // defined once and used for each finite element
+            double[,,] dxyzabg = new double[3, 3, 27];
+            double[] dj = new double[27];
+            double[,,] dfixyz = new double[27, 20, 30];
+
+            int[] coordinates = NT[number];
+
+            double globalCoordinate = 0;
+            double diFi = 0;
+            double sum = 0;
+
+            // i stands for global coordinate
+            // j for local
+            // k for gaussNode
+            // l for i-th function
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 27; k++)
+                    {
+                        sum = 0;
+                        for (int l = 1; l <= 20; l++)
+                        {
+                            globalCoordinate = AKT[coordinates[l]][i];
+                            diFi = DFIABG[k, j, l];
+                            sum += globalCoordinate * diFi;
+                        }
+                        dxyzabg[i, j, k] = sum;
+                    }
+                }
+            }           
         }
     }
 }
