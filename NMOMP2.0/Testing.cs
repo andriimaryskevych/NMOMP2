@@ -57,7 +57,9 @@ namespace NMOMP2._0
             //    Console.WriteLine($"{val[i][0],15} {val[i][1],15} {val[i][2],15}");
             //}
 
+
             // #5: DFIABG
+
             //double[,,] dfiabg = Globals.DFIABG;
             //for (int i = 0; i < 27; i++)
             //{
@@ -82,6 +84,7 @@ namespace NMOMP2._0
 
 
             // #7: one one
+
             //Console.WriteLine("Here");
             //double[,] value = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3).one_two(new double[1,1,1]);
             //for (int i = 0; i < 20; i++)
@@ -95,28 +98,43 @@ namespace NMOMP2._0
 
 
             // #8: rotating
-            double[,] arr = {
-                { 1,2,3 },
-                { 4,5,6 },
-                { 7,8,9 }
-            };
-            double[,] newArr = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3).rotate(arr);
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Console.Write(arr[i,j]);
-                }
-                Console.WriteLine();
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Console.Write(newArr[i,j]);
-                }
-                Console.WriteLine();
-            }
+
+            //double[,] arr = {
+            //    { 1,2,3 },
+            //    { 4,5,6 },
+            //    { 7,8,9 }
+            //};
+            //double[,] newArr = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3).rotate(arr);
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    for (int j = 0; j < 3; j++)
+            //    {
+            //        Console.Write(arr[i,j]);
+            //    }
+            //    Console.WriteLine();
+            //}
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    for (int j = 0; j < 3; j++)
+            //    {
+            //        Console.Write(newArr[i,j]);
+            //    }
+            //    Console.WriteLine();
+            //}
+
+            // #9: Mod
+
+            //for (int i = 0; i < 60; i++)
+            //{
+            //    Console.WriteLine($"{i} --- {i % 20}");
+            //}
+
+            // #: MG
+
+            //FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 1, 1, 1, 0.3);
+            //solve.Start();
+            //double[,] mg = solve.MG;
+            //Console.WriteLine("Test");
         }
     }
 }

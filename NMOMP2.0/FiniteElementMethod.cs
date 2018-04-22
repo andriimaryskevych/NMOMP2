@@ -43,9 +43,13 @@ namespace NMOMP2._0
         private double[][] GaussNodes = Globals.GaussNodes;
         private double[,,] DFIABG = Globals.DFIABG;
 
+        private double[] c = new double[3] { 5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0 };
+
         int nel;
         // Same as AKT, FE number goes first than it's local value that evaluates to global coord of selected FE
         public int[][] NT;
+
+        public double[,] MG;
 
         private double SCALE_X;
         private double SCALE_Y;
@@ -83,9 +87,10 @@ namespace NMOMP2._0
         {
             fillMatrixWithMainVertexes();
             fillMatrixWithIntermidiateVertexes();
+            MG = new double[3 * nqp, 3 * nqp]; 
             createAKT();
             createNT();
-            getMGE(0);
+            getMG();
         }
 
         private void fillMatrixWithMainVertexes()
@@ -180,197 +185,379 @@ namespace NMOMP2._0
             NT[belongElementNumber] = globalCoordinates;
         }
 
-        private void getMGE(int number)
+        private void getMG()
         {
             // defined once and used for each finite element
             double[,,] dxyzabg = new double[3, 3, 27];
             double[] dj = new double[27];
             double[,,] dfixyz = new double[27, 20, 3];
 
-            int[] coordinates = NT[number];
-
-            // calc dxyzabg
-            double globalCoordinate = 0;
-            double diFi = 0;
-            double sum = 0;
-            
-            // i stands for global coordinate
-            // j for local
-            // k for gaussNode
-            // l for i-th function
-            for (int i = 0; i < 3; i++)
+            for (int number = 0; number < nel; number++)
             {
-                for (int j = 0; j < 3; j++)
+                int[] coordinates = NT[number];
+
+                // calc dxyzabg
+                double globalCoordinate = 0;
+                double diFi = 0;
+                double sum = 0;
+
+                // i stands for global coordinate
+                // j for local
+                // k for gaussNode
+                // l for i-th function
+                for (int i = 0; i < 3; i++)
                 {
-                    for (int k = 0; k < 27; k++)
+                    for (int j = 0; j < 3; j++)
                     {
-                        sum = 0;
-                        for (int l = 0; l < 20; l++)
+                        for (int k = 0; k < 27; k++)
                         {
-                            globalCoordinate = AKT[coordinates[l]][i];
-                            diFi = DFIABG[k, j, l];
-                            sum += globalCoordinate * diFi;
+                            sum = 0;
+                            for (int l = 0; l < 20; l++)
+                            {
+                                globalCoordinate = AKT[coordinates[l]][i];
+                                diFi = DFIABG[k, j, l];
+                                sum += globalCoordinate * diFi;
+                            }
+                            dxyzabg[i, j, k] = sum;
                         }
-                        dxyzabg[i, j, k] = sum;
                     }
                 }
-            }
 
-            // calc dj
-            double[,] jak;
-            for (int i = 0; i < 27; i++)
-            {
-                jak = new double[3, 3] {
+                // calc dj
+                double[,] jak;
+                for (int i = 0; i < 27; i++)
+                {
+                    jak = new double[3, 3] {
                     { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
                     { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
                     { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
                 };
-                dj[i] = (
-                                jak[0, 0] * jak[1, 1] * jak[2, 2] +
-                                jak[0, 1] * jak[1, 2] * jak[2, 0] +
-                                jak[0, 2] * jak[1, 0] * jak[2, 1]
-                            ) -
-                            (
-                                jak[0, 2] * jak[1, 1] * jak[2, 0] +
-                                jak[0, 1] * jak[1, 0] * jak[2, 2] +
-                                jak[0, 0] * jak[1, 2] * jak[2, 1]
-                            );
-            }
+                    dj[i] = (
+                                    jak[0, 0] * jak[1, 1] * jak[2, 2] +
+                                    jak[0, 1] * jak[1, 2] * jak[2, 0] +
+                                    jak[0, 2] * jak[1, 0] * jak[2, 1]
+                                ) -
+                                (
+                                    jak[0, 2] * jak[1, 1] * jak[2, 0] +
+                                    jak[0, 1] * jak[1, 0] * jak[2, 2] +
+                                    jak[0, 0] * jak[1, 2] * jak[2, 1]
+                                );
+                }
 
-            // calc dfixyz
-            // col is free column
-            double[] col = new double[3];
-            // i stands for gausNode
-            // phi stands for i-th function
-            for (int i = 0; i < 27; i++)
-            {
-                for (int phi = 0; phi < 20; phi++)
+                // calc dfixyz
+                // col is free column
+                double[] col = new double[3];
+                // i stands for gausNode
+                // phi stands for i-th function
+                for (int i = 0; i < 27; i++)
                 {
-                    for (int k = 0; k < 3; k++)
+                    for (int phi = 0; phi < 20; phi++)
                     {
-                        col[k] = DFIABG[i, k, phi];
-                    }
+                        for (int k = 0; k < 3; k++)
+                        {
+                            col[k] = DFIABG[i, k, phi];
+                        }
 
-                    double[] gaussianSolve = Gaussian.Solve(new double[3, 3] {
+                        double[] gaussianSolve = Gaussian.Solve(new double[3, 3] {
                             { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
                             { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
                             { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
                         }, col);
 
+                        for (int k = 0; k < 3; k++)
+                        {
+                            dfixyz[i, phi, k] = gaussianSolve[k];
+                        }
+                    }
+                }
+
+                double[,][,] mge = new double[3, 3][,];
+
+                mge[0, 0] = one_one(dfixyz, dj);
+                mge[1, 1] = two_two(dfixyz, dj);
+                mge[2, 2] = three_three(dfixyz, dj);
+
+                mge[0, 1] = one_two(dfixyz, dj);
+                mge[0, 2] = one_three(dfixyz, dj);
+                mge[1, 2] = two_three(dfixyz, dj);
+
+                mge[1, 0] = rotate(mge[0,1]);
+                mge[02, 0] = rotate(mge[0, 2]);
+                mge[2, 1] = rotate(mge[1, 2]);
+
+                int x, y, localX, localY, globalX, globalY;
+                for (int i = 0; i < 60; i++)
+                {
+                    for (int j = 0; j < 60; j++)
+                    {
+                        x = i / 20;
+                        y = j / 20;
+
+                        localX = i % 20;
+                        localY = j % 20;
+
+                        globalX = (NT[number][localX]) * 3 + x;
+                        globalY = (NT[number][localY]) * 3 + y;
+                        MG[globalX, globalY] += mge[x, y][localX, localY];
+                    }
+                }
+
+                if (number == 0)
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        for (int j = 0; j < 5; j++)
+                        {
+                            Console.Write($"{MG[i, j],20}");
+                        }
+                        Console.WriteLine();
+                    }
+                }
+                //for (int i = 0; i < nqp; i++)
+                //{
+                //    for (int j = 0; j < nqp; j++)
+                //    {
+                //        if (MG[i, j] != MG[j, i])
+                //        {
+                //            Console.WriteLine("Bleaaaaty");
+                //        }
+                //    }
+                //}
+                //for (int i = 0; i < 60; i++)
+                //{
+                //    Console.Write(new string(' ', i));
+                //    for (int j = i; j < 60; j++)
+                //    {
+                //        Console.Write(1);
+                //    }
+                //    Console.WriteLine();
+                //}
+                //double[,] m11 = one_one(dfixyz, dj);
+                //double[,] m22 = two_two(dfixyz, dj);
+                //double[,] m33 = three_three(dfixyz, dj);
+                //double[,] m12 = one_two(dfixyz, dj);
+                //double[,] m13 = one_three(dfixyz, dj);
+                //double[,] m23 = two_three(dfixyz, dj);
+                // consolelogging results of calculations
+                //for (int i = 0; i < 20; i++)
+                //{
+                //    for (int j = 0; j < 20; j++)
+                //    {
+                //        Console.Write(value[i, j] == 0 ? 0 : 1);
+                //    }
+                //    Console.WriteLine();
+                //}
+            }
+        }
+
+        public double[,] one_one(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        double sum = 0;
+                        int counter = 0;
+                        for (int k = 0; k < 3; k++)
+                        {
+                            for (int l = 0; l < 3; l++)
+                            {
+                                for (int m = 0; m < 3; m++)
+                                {
+                                    sum += (
+                                            ( lam * (1 - v) * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0]) )
+                                            +
+                                            ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2])) 
+                                        ) * Math.Abs(dj[counter]) * c[m];
+                                    ++counter;
+                                }
+                                sum *= c[l];
+                            }
+                            sum *= c[k];
+                        }
+                        res[i, j] = sum;
+                    }
+                }
+            }
+            return res;
+        }
+        public double[,] two_two(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        double sum = 0;
+                        int counter = 0;
+                        for (int k = 0; k < 3; k++)
+                        {
+                            for (int l = 0; l < 3; l++)
+                            {
+                                for (int m = 0; m < 3; m++)
+                                {
+                                    sum += (
+                                            (lam * (1 - v) * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
+                                            +
+                                            (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
+                                        ) * Math.Abs(dj[counter]) * c[m];
+                                    ++counter;
+
+                                }
+                                sum *= c[l];
+                            }
+                            sum *= c[k];
+                        }
+                        res[i, j] = sum;
+                    }
+                }
+            }
+            return res;
+        }
+        public double[,] three_three(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    if (i > j)
+                    {
+                        res[i, j] = res[j, i];
+                    }
+                    else
+                    {
+                        double sum = 0;
+                        int counter = 0;
+                        for (int k = 0; k < 3; k++)
+                        {
+                            for (int l = 0; l < 3; l++)
+                            {
+                                for (int m = 0; m < 3; m++)
+                                {
+                                    sum += (
+                                            (lam * (1 - v) * (dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
+                                            +
+                                            (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
+                                        ) * Math.Abs(dj[counter]) * c[m];
+                                    ++counter;
+                                }
+                                sum *= c[l];
+                            }
+                            sum *= c[k];
+                        }
+                        res[i, j] = sum;
+                    }
+                }
+            }
+            return res;
+        }
+
+        public double[,] one_two(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {                    
+                    double sum = 0;
+                    int counter = 0;
                     for (int k = 0; k < 3; k++)
                     {
-                        dfixyz[i, phi, k] = gaussianSolve[k];
+                        for (int l = 0; l < 3; l++)
+                        {
+                            for (int m = 0; m < 3; m++)
+                            {
+                                sum += (
+                                    ( lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 1]) )
+                                      +
+                                    ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 0]) )    
+                                    ) * Math.Abs(dj[counter]) * c[m];
+                                ++counter;
+                            }
+                            sum *= c[l];
+                        }
+                        sum *= c[k];
                     }
+                    res[i, j] = sum;
+                    
                 }
             }
+            return res;
+        }
+        public double[,] one_three(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
+            {
+                for (int j = 0; j < 20; j++)
+                {
+                    double sum = 0;
+                    int counter = 0;
+                    for (int k = 0; k < 3; k++)
+                    {
+                        for (int l = 0; l < 3; l++)
+                        {
+                            for (int m = 0; m < 3; m++)
+                            {
+                                sum += (
+                                    (lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 2]))
+                                      +
+                                    (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 0]))
+                                    ) * Math.Abs(dj[counter]) * c[m];
+                                ++counter;
+                            }
+                            sum *= c[l];
+                        }
+                        sum *= c[k];
+                    }
+                    res[i, j] = sum;
 
-            // calc mge
-            double[,] mge = new double[60, 60];
-            for (int i = 0; i < 60; i++)
+                }
+            }
+            return res;
+        }
+        public double[,] two_three(double[,,] dfixyz, double[] dj)
+        {
+            double[,] res = new double[20, 20];
+            for (int i = 0; i < 20; i++)
             {
-                for (int j = 0; j < 60; j++)
+                for (int j = 0; j < 20; j++)
                 {
-                    if (i > j)
+                    double sum = 0;
+                    int counter = 0;
+                    for (int k = 0; k < 3; k++)
                     {
-                        mge[i, j] = mge[j, i];
+                        for (int l = 0; l < 3; l++)
+                        {
+                            for (int m = 0; m < 3; m++)
+                            {
+                                sum += (
+                                    (lam * v * (dfixyz[counter, i, 1] * dfixyz[counter, j, 2]))
+                                      +
+                                    (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 1]))
+                                    ) * Math.Abs(dj[counter]) * c[m];
+                                ++counter;
+                            }
+                            sum *= c[l];
+                        }
+                        sum *= c[k];
                     }
-                    else {
+                    res[i, j] = sum;
 
-                    }
-                }
-            }
-        }
-
-        public double[,] one_one(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    if (i > j)
-                    {
-                        res[i, j] = res[j, i];
-                    }
-                    else
-                    {
-                        res[i, j] = 11;
-                    }
-                }
-            }
-            return res;
-        }
-        public double[,] two_two(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    if (i > j)
-                    {
-                        res[i, j] = res[j, i];
-                    }
-                    else
-                    {
-                        res[i, j] = 22;
-                    }
-                }
-            }
-            return res;
-        }
-        public double[,] three_three(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    if (i > j)
-                    {
-                        res[i, j] = res[j, i];
-                    }
-                    else
-                    {
-                        res[i, j] = 33;
-                    }
-                }
-            }
-            return res;
-        }
-
-        public double[,] one_two(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    res[i, j] = 12;                    
-                }
-            }
-            return res;
-        }
-        public double[,] one_three(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    res[i, j] = 13;
-                }
-            }
-            return res;
-        }
-        public double[,] two_three(double[,,] dfixyz)
-        {
-            double[,] res = new double[20, 20];
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 20; j++)
-                {
-                    res[i, j] = 23;
                 }
             }
             return res;
