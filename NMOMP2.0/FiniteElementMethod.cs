@@ -51,6 +51,9 @@ namespace NMOMP2._0
 
         public double[,] MG;
 
+        public int[] ZU;
+        public double[,] ZP;
+
         private double SCALE_X;
         private double SCALE_Y;
         private double SCALE_Z;
@@ -89,8 +92,11 @@ namespace NMOMP2._0
             fillMatrixWithIntermidiateVertexes();
             MG = new double[3 * nqp, 3 * nqp]; 
             createAKT();
+            createZU();
+            createZP();
             createNT();
             getMG();
+            improveMG();
         }
 
         private void fillMatrixWithMainVertexes()
@@ -156,6 +162,28 @@ namespace NMOMP2._0
                         }
                     }
                 }
+            }
+        }
+
+        private void createZU()
+        {
+            int i = 0;
+            while (AKT[i][2] == 0)
+            {
+                i++;
+            }
+            ZU = Enumerable.Range(0, i).ToArray();
+        }
+        private void createZP()
+        {
+            int loadElementsCount = m * n;
+            ZP = new double[loadElementsCount, 3];
+            int firstOne = nel - loadElementsCount;
+            for (int i = firstOne, counter = 0; i < nel; i++, counter++)
+            {
+                ZP[counter, 0] = i;
+                ZP[counter, 1] = 5;
+                ZP[counter, 2] = 10;
             }
         }
 
@@ -302,17 +330,17 @@ namespace NMOMP2._0
                     }
                 }
 
-                if (number == 0)
-                {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        for (int j = 0; j < 5; j++)
-                        {
-                            Console.Write($"{MG[i, j],20}");
-                        }
-                        Console.WriteLine();
-                    }
-                }
+                //if (number == 0)
+                //{
+                //    for (int i = 0; i < 5; i++)
+                //    {
+                //        for (int j = 0; j < 5; j++)
+                //        {
+                //            Console.Write($"{MG[i, j],20}");
+                //        }
+                //        Console.WriteLine();
+                //    }
+                //}
                 //for (int i = 0; i < nqp; i++)
                 //{
                 //    for (int j = 0; j < nqp; j++)
@@ -350,7 +378,7 @@ namespace NMOMP2._0
             }
         }
 
-        public double[,] one_one(double[,,] dfixyz, double[] dj)
+        private double[,] one_one(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -388,7 +416,7 @@ namespace NMOMP2._0
             }
             return res;
         }
-        public double[,] two_two(double[,,] dfixyz, double[] dj)
+        private double[,] two_two(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -427,7 +455,7 @@ namespace NMOMP2._0
             }
             return res;
         }
-        public double[,] three_three(double[,,] dfixyz, double[] dj)
+        private double[,] three_three(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -466,7 +494,7 @@ namespace NMOMP2._0
             return res;
         }
 
-        public double[,] one_two(double[,,] dfixyz, double[] dj)
+        private double[,] one_two(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -498,7 +526,7 @@ namespace NMOMP2._0
             }
             return res;
         }
-        public double[,] one_three(double[,,] dfixyz, double[] dj)
+        private double[,] one_three(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -530,7 +558,7 @@ namespace NMOMP2._0
             }
             return res;
         }
-        public double[,] two_three(double[,,] dfixyz, double[] dj)
+        private double[,] two_three(double[,,] dfixyz, double[] dj)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -563,7 +591,7 @@ namespace NMOMP2._0
             return res;
         }
 
-        public double[,] rotate(double[,] toRotate)
+        private double[,] rotate(double[,] toRotate)
         {
             double[,] res = new double[20, 20];
             for (int i = 0; i < 20; i++)
@@ -574,6 +602,19 @@ namespace NMOMP2._0
                 }
             }
             return res;
+        }
+
+        private void improveMG()
+        {
+            int index;
+            for (int i = 0; i < ZU.Length; i++)
+            {
+                index = ZU[i] * 3;
+                for (int j = 0; j < 3; j++)
+                {                    
+                    MG[index + j, index + j] = Globals.BIG_NUMBER;
+                }
+            }
         }
     }
 }

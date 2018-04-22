@@ -129,12 +129,57 @@ namespace NMOMP2._0
             //    Console.WriteLine($"{i} --- {i % 20}");
             //}
 
-            // #: MG
+            // #10: MG
 
             //FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 1, 1, 1, 0.3);
             //solve.Start();
             //double[,] mg = solve.MG;
             //Console.WriteLine("Test");
+
+
+            // #11: ZU
+
+            //FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3);
+            //solve.Start();
+            //int[] zu = solve.ZU;
+            //foreach (int a in zu)
+            //{
+            //    Console.WriteLine(a);
+            //}
+
+
+            // #12: Modified MG
+
+            //FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3);
+            //solve.Start();
+            //double[,] MG = solve.MG;
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    for (int j = 0; j < 5; j++)
+            //    {
+            //        Console.Write($"{MG[i, j],20}");
+            //    }
+            //    Console.WriteLine();
+            //}
+
+
+            // #13: eta tau check
+
+            //for (int i = 0; i < 2; i++)
+            //{
+            //    for (int j = 0; j < 8; j++)
+            //    {
+            //        PSI.getDiPsi(i, j, 1, 1);
+            //    }
+            //}
+
+
+            // #14: 9 Gauss Nodes
+            
+            //for (int i = 0; i < 9; i++)
+            //{
+            //    Console.WriteLine($"{Globals.GaussNodes9[i][0]} {Globals.GaussNodes9[i][1]}");
+            //}
         }
     }
 }

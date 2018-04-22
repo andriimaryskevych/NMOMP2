@@ -78,5 +78,48 @@ namespace NMOMP2._0
             return result;
         }
         public static double[,,] DFIABG = countDFIABG();
+
+        private static double[][] smallGaussNodes()
+        {
+            double[][] res = new double[9][];
+            double[] val = new double[] { -1 * Math.Sqrt(0.6), 0, Math.Sqrt(0.6) };
+
+            int counter = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    res[counter] = new double[] { val[i], val[j]};
+                    ++counter;                    
+                }
+            }
+
+            return res;
+        }
+        public static double[][] GaussNodes9 = smallGaussNodes();
+
+        private static double[,,] countDPSITE()
+        {
+            double[,,] result = new double[9, 2, 8];
+
+            // i stands for number of gauss node
+            // local stands for local variable, like 0 is alpha...
+            // k stands for i-th function
+            for (int i = 0; i < 9; i++)
+            {
+                for (int local = 0; local < 2; local++)
+                {
+                    for (int k = 0; k < 8; k++)
+                    {
+                        result[i, local, k] = PSI.getDiPsi(local, k, GaussNodes9[i][0], GaussNodes9[i][1]);
+                    }
+                }
+            }
+
+            return result;
+        }
+        public static double[,,] DPSITE = countDPSITE();
+
+        public static double BIG_NUMBER = Math.Pow(10, 20);
     }
 }
