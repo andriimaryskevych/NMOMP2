@@ -105,5 +105,39 @@ namespace NMOMP2._0
 
             return result;
         }
+
+        public static double firstPsi(int i, double eta, double tau)
+        {
+            double result;
+            double[] coord = adapter[i];
+            result = ONE_FOURTH *
+                     (1 + eta * coord[0]) *
+                     (1 + tau * coord[1]) *
+                     (eta * coord[0] + tau * coord[1] - 1);
+            return result;
+        }
+        public static double secondPsi(int i, double eta, double tau)
+        {
+            double result;
+            double[] coord = adapter[i];
+            result = ONE_FOURTH *
+                     (1 - Math.Pow(eta, 2)) *
+                     (1 + tau * coord[1]);
+            return result;
+        }
+        public static double thirdPsi(int i, double eta, double tau)
+        {
+            double result;
+            double[] coord = adapter[i];
+            result = ONE_FOURTH *
+                     (1 - Math.Pow(tau, 2)) *
+                     (1 + eta * coord[0]);
+            return result;
+        }
+
+        public static double getPsi(int i, double eta, double tau)
+        {
+            return i < 4 ? firstPsi(i, eta, tau) : i % 2 == 0 ? secondPsi(i, eta, tau) : thirdPsi(i, eta, tau);
+        }
     }
 }

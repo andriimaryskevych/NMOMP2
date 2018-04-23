@@ -175,11 +175,14 @@ namespace NMOMP2._0
 
 
             // #14: 9 Gauss Nodes
-            
+
             //for (int i = 0; i < 9; i++)
             //{
             //    Console.WriteLine($"{Globals.GaussNodes9[i][0]} {Globals.GaussNodes9[i][1]}");
             //}
+
+            // #15: PSI
+            
         }
     }
 }
