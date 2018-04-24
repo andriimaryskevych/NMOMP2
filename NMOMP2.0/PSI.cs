@@ -120,7 +120,7 @@ namespace NMOMP2._0
         {
             double result;
             double[] coord = adapter[i];
-            result = ONE_FOURTH *
+            result = HALF *
                      (1 - Math.Pow(eta, 2)) *
                      (1 + tau * coord[1]);
             return result;
@@ -129,7 +129,7 @@ namespace NMOMP2._0
         {
             double result;
             double[] coord = adapter[i];
-            result = ONE_FOURTH *
+            result = HALF *
                      (1 - Math.Pow(tau, 2)) *
                      (1 + eta * coord[0]);
             return result;

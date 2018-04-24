@@ -37,22 +37,34 @@ namespace NMOMP2._0
         // As first argument I set global number and as a second one i set vector of lenght 3 that contains exact point coord
         public double[][] AKT;
 
-        private int[,,] local_to_global;
-        private Dictionary<int, int[]> adapter = Globals.magicDictionary;
+        public int[,,] local_to_global;
+        public Dictionary<int, int[]> adapter = Globals.magicDictionary;
+        public int[][] PAdapter = new int[6][] {
+            new int[8],
+            new int[8],
+            new int[8],
+            new int[8],
+            new int[8],
+            new int[8] { 4, 5, 6, 7, 16, 17, 18, 19}
+        };
 
-        private double[][] GaussNodes = Globals.GaussNodes;
-        private double[,,] DFIABG = Globals.DFIABG;
+        public double[][] GaussNodes = Globals.GaussNodes;
+        public double[,,] DFIABG = Globals.DFIABG;
 
-        private double[] c = new double[3] { 5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0 };
+        public double[] c = new double[3] { 5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0 };
 
         int nel;
         // Same as AKT, FE number goes first than it's local value that evaluates to global coord of selected FE
         public int[][] NT;
 
         public double[,] MG;
+        public double[] F;
 
         public int[] ZU;
         public double[,] ZP;
+
+        public double[,,] DPSITE = Globals.DPSITE;
+        public double[,] PSIET;
 
         private double SCALE_X;
         private double SCALE_Y;
@@ -90,13 +102,17 @@ namespace NMOMP2._0
         {
             fillMatrixWithMainVertexes();
             fillMatrixWithIntermidiateVertexes();
-            MG = new double[3 * nqp, 3 * nqp]; 
+            MG = new double[3 * nqp, 3 * nqp];
+            F = new double[3 * nqp];
             createAKT();
             createZU();
             createZP();
             createNT();
             getMG();
             improveMG();
+            createPSI();
+            createF();
+            getResult();
         }
 
         private void fillMatrixWithMainVertexes()
@@ -310,7 +326,7 @@ namespace NMOMP2._0
                 mge[1, 2] = two_three(dfixyz, dj);
 
                 mge[1, 0] = rotate(mge[0,1]);
-                mge[02, 0] = rotate(mge[0, 2]);
+                mge[2, 0] = rotate(mge[0, 2]);
                 mge[2, 1] = rotate(mge[1, 2]);
 
                 int x, y, localX, localY, globalX, globalY;
@@ -617,9 +633,97 @@ namespace NMOMP2._0
             }
         }
 
+        private void createPSI()
+        {
+            PSIET = new double[8, 9];
+
+            double[] values;
+            double[][] nodes = Globals.GaussNodes9;
+
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    values = nodes[j];
+                    PSIET[i,j] = PSI.getPsi(i, values[0], values[1]);
+                }
+            }
+        }
+
         private void createF()
         {
-            
+            double[,,] DXYZET;
+
+            for (int number = 0; number < nel; number++)
+            {
+                DXYZET = new double[3, 2, 9];
+
+                int[] coordinates = NT[number];
+
+                // calc dxyzabg
+                double globalCoordinate = 0;
+                double diPsi = 0;
+                double sum = 0;
+
+                // i stands for global coordinate
+                // j for local
+                // k for gaussNode
+                // l for i-th function
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 2; j++)
+                    {
+                        for (int k = 0; k < 9; k++)
+                        {
+                            sum = 0;
+                            for (int l = 0; l < 8; l++)
+                            {
+                                globalCoordinate = AKT[coordinates[PAdapter[5][l]]][i];
+                                diPsi = DPSITE[k, j, l];
+                                sum += globalCoordinate * diPsi;
+                            }
+                            DXYZET[i, j, k] = sum;
+                        }
+                    }
+                }
+
+                // not the best code below
+
+                double presure = 10;
+
+                double[] f2 = new double[8];
+
+
+                for (int i = 0; i < 8; i++)
+                {
+                    sum = 0;
+                    int counter = 0;
+                    for (int m = 0; m < 3; m++)
+                    {
+                        for (int n = 0; n < 3; n++)
+                        {
+                            sum += presure * (DXYZET[1, 0, counter] * DXYZET[2, 1, counter] - DXYZET[2, 0, counter] * DXYZET[1, 1, counter]) * PSIET[i, counter] * c[n];
+                            ++counter;
+                        }
+                        sum *= c[m];
+                    }
+                    f2[i] = sum;
+                }
+
+                for (int i = 0; i < 8; i++)
+                {
+                    F[coordinates[PAdapter[5][i]] * 3 + 2] = f2[i];
+                }
+            }
+        }
+
+        private void getResult()
+        {
+            double[] result = Gaussian.Solve(MG, F);
+            foreach (int a in result)
+            {
+                Console.WriteLine(a);
+            }
         }
     }
 }

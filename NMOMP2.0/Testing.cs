@@ -182,6 +182,30 @@ namespace NMOMP2._0
             //}
 
             // #15: PSI
+
+            //double[][] nodes = Globals.GaussNodes9;
+            //Dictionary<int, double[]> adapter = new Dictionary<int, double[]>
+            //{
+            //    {0, new double[] {-1, -1} },
+            //    {1, new double[] { 1, -1} },
+            //    {2, new double[] { 1,  1} },
+            //    {3, new double[] {-1,  1} },
+
+            //    {4, new double[] { 0, -1} },
+            //    {5, new double[] { 1,  0} },
+            //    {6, new double[] { 0,  1} },
+            //    {7, new double[] {-1,  0} }
+            //};
+
+            //for (int i = 0; i < 8; i++)
+            //{
+            //    for (int j = 0; j < 8; j++)
+            //    {
+            //        double[] values = adapter[j];
+            //        Console.Write(PSI.getPsi(i, values[0], values[1]));
+            //    }
+            //    Console.WriteLine();
+            //}
             
         }
     }
