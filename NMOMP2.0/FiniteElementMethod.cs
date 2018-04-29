@@ -301,12 +301,12 @@ namespace NMOMP2._0
                         {
                             col[k] = DFIABG[i, k, phi];
                         }
-
-                        double[] gaussianSolve = Gaussian.Solve(new double[3, 3] {
+                        double[,] matrix = new double[3, 3] {
                             { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
                             { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
                             { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
-                        }, col);
+                        };
+                        double[] gaussianSolve = Gaussian.Solve(matrix, col);
 
                         for (int k = 0; k < 3; k++)
                         {
@@ -325,7 +325,7 @@ namespace NMOMP2._0
                 mge[0, 2] = one_three(dfixyz, dj);
                 mge[1, 2] = two_three(dfixyz, dj);
 
-                mge[1, 0] = rotate(mge[0,1]);
+                mge[1, 0] = rotate(mge[0, 1]);
                 mge[2, 0] = rotate(mge[0, 2]);
                 mge[2, 1] = rotate(mge[1, 2]);
 
@@ -342,15 +342,40 @@ namespace NMOMP2._0
 
                         globalX = (NT[number][localX]) * 3 + x;
                         globalY = (NT[number][localY]) * 3 + y;
+
                         MG[globalX, globalY] += mge[x, y][localX, localY];
+
+                        // Set j < i and get upperDiagonal Matrix
+                        //if (globalX < globalY)
+                        //{
+                        //    MG[globalX, globalY] += mge[x, y][localX, localY];
+                        //}
+                        //else
+                        //{
+                        //    MG[globalY, globalX] += mge[x, y][localX, localY];
+                        //}
+
+
+                        //if (i == j)
+                        //{
+                        //    Console.WriteLine(mge[x, y][localX, localY]);
+                        //}
+                        //if (i == 1 && j == 2)
+                        //{
+                        //    Console.WriteLine(mge[x, y][localX, localY]);
+                        //}
+                        //if (i == 2 && j == 1)
+                        //{
+                        //    Console.WriteLine(mge[x, y][localX, localY]);
+                        //}
                     }
                 }
 
                 //if (number == 0)
                 //{
-                //    for (int i = 0; i < 5; i++)
+                //    for (int i = 0; i < 9; i++)
                 //    {
-                //        for (int j = 0; j < 5; j++)
+                //        for (int j = 0; j < 9; j++)
                 //        {
                 //            Console.Write($"{MG[i, j],20}");
                 //        }
@@ -702,7 +727,7 @@ namespace NMOMP2._0
                     {
                         for (int n = 0; n < 3; n++)
                         {
-                            sum += presure * (DXYZET[1, 0, counter] * DXYZET[2, 1, counter] - DXYZET[2, 0, counter] * DXYZET[1, 1, counter]) * PSIET[i, counter] * c[n];
+                            sum += presure * (DXYZET[0, 0, counter] * DXYZET[1, 1, counter] - DXYZET[1, 0, counter] * DXYZET[0, 1, counter]) * PSIET[i, counter] * c[n];
                             ++counter;
                         }
                         sum *= c[m];
@@ -714,15 +739,22 @@ namespace NMOMP2._0
                 {
                     F[coordinates[PAdapter[5][i]] * 3 + 2] = f2[i];
                 }
+                
             }
         }
 
         private void getResult()
         {
             double[] result = Gaussian.Solve(MG, F);
-            foreach (int a in result)
+            //foreach (int a in result)
+            //{
+            //    Console.WriteLine(a);
+            //}
+            for (int i = 0; i < nqp; i++)
             {
-                Console.WriteLine(a);
+                double[] prev = AKT[i];
+                double[] point = result.Skip(i * 3).Take(3).ToArray();
+                Console.WriteLine($"{i+1} --- ({point[0] + prev[0]}, {point[1] + prev[1]}, {point[2] + prev[2]})");
             }
         }
     }
