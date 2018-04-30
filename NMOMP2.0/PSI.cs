@@ -29,18 +29,17 @@ namespace NMOMP2._0
             double result;
             double[] coord = adapter[i];
             result = ONE_FOURTH *
-                     (1 + tau * coord[1]) *
+                     (1.0 + tau * coord[1]) *
                      coord[0] *
-                     (2 * eta * coord[0] + tau * coord[1]);
+                     (2.0 * eta * coord[0] + tau * coord[1]);
             return result;
         }
         private static double diEtaSecond(int i, double eta, double tau)
         {
             double result;
             double[] coord = adapter[i];
-            result = HALF *
-                     (1 + tau * coord[1]) *
-                     (-2 * eta);
+            result = (1.0 + tau * coord[1]) *
+                     (-eta);
             return result;
         }
         private static double diEtaThird(int i, double eta, double tau)
@@ -48,7 +47,7 @@ namespace NMOMP2._0
             double result;
             double[] coord = adapter[i];
             result = HALF *
-                     (1 - Math.Pow(tau, 2)) *
+                     (1.0 - Math.Pow(tau, 2)) *
                      coord[0];
             return result;
         }
@@ -58,9 +57,9 @@ namespace NMOMP2._0
             double result;
             double[] coord = adapter[i];
             result = ONE_FOURTH *
-                     (1 + eta * coord[0]) *
+                     (1.0 + eta * coord[0]) *
                      coord[1] *
-                     (2 * tau * coord[1] + eta * coord[0]);
+                     (2.0 * tau * coord[1] + eta * coord[0]);
 
             return result;
         }
@@ -69,7 +68,7 @@ namespace NMOMP2._0
             double result;
             double[] coord = adapter[i];
             result = HALF *
-                     (1 - Math.Pow(eta, 2)) *
+                     (1.0 - Math.Pow(eta, 2)) *
                      coord[1];
             return result;
         }
@@ -77,9 +76,8 @@ namespace NMOMP2._0
         {
             double result;
             double[] coord = adapter[i];
-            result = HALF *
-                     (1 + eta * coord[0]) *
-                     (-2 * tau);
+            result = (1.0 + eta * coord[0]) *
+                     (-tau);
             return result;
         }
 

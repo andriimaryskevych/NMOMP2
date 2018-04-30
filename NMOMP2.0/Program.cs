@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace NMOMP2._0
 {
@@ -12,8 +14,17 @@ namespace NMOMP2._0
         {
             //Testing test = new Testing();
 
-            FiniteElementMethod solve = new FiniteElementMethod(4, 4, 4, 4, 4, 4, 0.3);
+            FiniteElementMethod solve = new FiniteElementMethod(100, 100, 600, 2, 2, 40, 0.3);
             solve.Start();
+
+            //var v = new { Amount = 108, Message = "Hello" };
+            //var json = JavaScriptSerializer.Serialize();
+
+            //double[][] arr = new double[][] { new double[] { 1,2,3}, new double[] { 1, 2, 3 } };
+
+            //string jsonData = JsonConvert.SerializeObject((from a in arr select new { x = a[0], y = a[1], z = a[2], }));
+
+            //Console.WriteLine(jsonData);
 
         }
     }

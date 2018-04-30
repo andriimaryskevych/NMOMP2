@@ -7,3 +7,5 @@ C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.exe
 C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.pdb
 C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\bin\Debug\MathNet.Numerics.dll
 C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\bin\Debug\MathNet.Numerics.xml
+C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\bin\Debug\Newtonsoft.Json.dll
+C:\Users\andri\source\repos\NMOMP2.0\NMOMP2.0\bin\Debug\Newtonsoft.Json.xml

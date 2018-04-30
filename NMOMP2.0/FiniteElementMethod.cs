@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace NMOMP2._0
 {
@@ -109,6 +111,7 @@ namespace NMOMP2._0
             createZP();
             createNT();
             getMG();
+            Console.WriteLine(isSymetricMG());
             improveMG();
             createPSI();
             createF();
@@ -370,7 +373,7 @@ namespace NMOMP2._0
                         //}
                     }
                 }
-
+               
                 //if (number == 0)
                 //{
                 //    for (int i = 0; i < 9; i++)
@@ -417,6 +420,21 @@ namespace NMOMP2._0
                 //    Console.WriteLine();
                 //}
             }
+
+            //for (int i = 0; i < 30; i++)
+            //{
+            //    for (int j = 0; j < 30; j++)
+            //    {
+            //        if (i == j)
+            //        {
+            //            Console.BackgroundColor = ConsoleColor.Blue;
+            //            Console.ForegroundColor = ConsoleColor.White;
+            //        }
+            //        Console.Write($"{Math.Round(MG[i,j], 2), 6}");                    
+            //        Console.ResetColor();
+            //    }
+            //    Console.WriteLine();
+            //}            
         }
 
         private double[,] one_one(double[,,] dfixyz, double[] dj)
@@ -645,6 +663,21 @@ namespace NMOMP2._0
             return res;
         }
 
+        private bool isSymetricMG()
+        {
+            for (int i = 0; i < 3 * nqp; i++)
+            {
+                for (int j = i; j < 3 * nqp; j++)
+                {
+                    if (MG[i, j] != MG[j, i])
+                    {
+                        return false;
+                    }
+                }                  
+            }
+            return true;
+        }
+
         private void improveMG()
         {
             int index;
@@ -679,13 +712,16 @@ namespace NMOMP2._0
         {
             double[,,] DXYZET;
 
-            for (int number = 0; number < nel; number++)
-            {
+            int loadElementsCount = m * n;
+            int start = nel - loadElementsCount;
+            Console.WriteLine($"{start} {nel}");
+            for (int number = start; number < nel; number++)
+            {            
                 DXYZET = new double[3, 2, 9];
 
                 int[] coordinates = NT[number];
 
-                // calc dxyzabg
+                // calc dxyzet
                 double globalCoordinate = 0;
                 double diPsi = 0;
                 double sum = 0;
@@ -714,10 +750,9 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = 10;
+                double presure = -0.03;
 
                 double[] f2 = new double[8];
-
 
                 for (int i = 0; i < 8; i++)
                 {
@@ -737,24 +772,30 @@ namespace NMOMP2._0
 
                 for (int i = 0; i < 8; i++)
                 {
-                    F[coordinates[PAdapter[5][i]] * 3 + 2] = f2[i];
+                    F[coordinates[PAdapter[5][i]] * 3 + 2] += f2[i];
                 }
-                
             }
         }
 
         private void getResult()
         {
             double[] result = Gaussian.Solve(MG, F);
-            //foreach (int a in result)
-            //{
-            //    Console.WriteLine(a);
-            //}
+            double[][] AKTres = new double[nqp][];
             for (int i = 0; i < nqp; i++)
             {
                 double[] prev = AKT[i];
                 double[] point = result.Skip(i * 3).Take(3).ToArray();
-                Console.WriteLine($"{i+1} --- ({point[0] + prev[0]}, {point[1] + prev[1]}, {point[2] + prev[2]})");
+                AKTres[i] = new double[3] { Math.Round(prev[0] + point[0], 2), Math.Round(prev[1] + point[1], 2), Math.Round(prev[2] + point[2], 2) };
+            }
+
+            using (StreamWriter sw = new StreamWriter("C:\\Folder\\WebGl\\src\\points.txt", false, System.Text.Encoding.Default))
+            {
+                sw.WriteLine(JsonConvert.SerializeObject((from a in AKTres select new { x = a[0], y = a[1], z = a[2], })));
+            }
+
+            using (StreamWriter sw = new StreamWriter("C:\\Folder\\WebGl\\src\\start.txt", false, System.Text.Encoding.Default))
+            {
+                sw.WriteLine(JsonConvert.SerializeObject((from a in AKT select new { x = a[0], y = a[1], z = a[2], })));
             }
         }
     }
