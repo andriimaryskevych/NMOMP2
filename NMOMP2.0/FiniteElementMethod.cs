@@ -28,7 +28,7 @@ namespace NMOMP2._0
         public int n;
         public int k;
 
-        public double E = 1;
+        public double E = 10;
         public double v;
         public double lam;
         public double mu;
@@ -42,11 +42,11 @@ namespace NMOMP2._0
         public int[,,] local_to_global;
         public Dictionary<int, int[]> adapter = Globals.magicDictionary;
         public int[][] PAdapter = new int[6][] {
-            new int[8],
-            new int[8],
-            new int[8],
-            new int[8],
-            new int[8],
+            new int[8] { 0, 1, 5, 4, 8, 13, 16, 12},
+            new int[8] { 1, 2, 6, 5, 9, 14, 17, 13},
+            new int[8] { 2, 3, 7, 6, 10, 15, 18, 14 },
+            new int[8] { 3, 0, 4, 7, 11, 12, 19, 15},
+            new int[8] { 0, 1, 2, 3, 8, 9, 10, 11},
             new int[8] { 4, 5, 6, 7, 16, 17, 18, 19}
         };
 
@@ -104,8 +104,7 @@ namespace NMOMP2._0
         {
             fillMatrixWithMainVertexes();
             fillMatrixWithIntermidiateVertexes();
-            MG = new double[3 * nqp, 3 * nqp];
-            F = new double[3 * nqp];
+            initMatrix();
             createAKT();
             createZU();
             createZP();
@@ -162,6 +161,11 @@ namespace NMOMP2._0
                     }
                 }
             }
+        }
+        private void initMatrix()
+        {
+            MG = new double[3 * nqp, 3 * nqp];
+            F = new double[3 * nqp];
         }
         private void createAKT()
         {
@@ -280,15 +284,15 @@ namespace NMOMP2._0
                     { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
                 };
                     dj[i] = (
-                                    jak[0, 0] * jak[1, 1] * jak[2, 2] +
-                                    jak[0, 1] * jak[1, 2] * jak[2, 0] +
-                                    jak[0, 2] * jak[1, 0] * jak[2, 1]
-                                ) -
-                                (
-                                    jak[0, 2] * jak[1, 1] * jak[2, 0] +
-                                    jak[0, 1] * jak[1, 0] * jak[2, 2] +
-                                    jak[0, 0] * jak[1, 2] * jak[2, 1]
-                                );
+                                jak[0, 0] * jak[1, 1] * jak[2, 2] +
+                                jak[0, 1] * jak[1, 2] * jak[2, 0] +
+                                jak[0, 2] * jak[1, 0] * jak[2, 1]
+                            ) -
+                            (
+                                jak[0, 2] * jak[1, 1] * jak[2, 0] +
+                                jak[0, 1] * jak[1, 0] * jak[2, 2] +
+                                jak[0, 0] * jak[1, 2] * jak[2, 1]
+                            );
                 }
 
                 // calc dfixyz
@@ -462,7 +466,7 @@ namespace NMOMP2._0
                                             ( lam * (1 - v) * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0]) )
                                             +
                                             ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2])) 
-                                        ) * Math.Abs(dj[counter]) * c[m];
+                                        ) * dj[counter] * c[m];
                                     ++counter;
                                 }
                                 sum *= c[l];
@@ -500,7 +504,7 @@ namespace NMOMP2._0
                                             (lam * (1 - v) * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
                                             +
                                             (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
-                                        ) * Math.Abs(dj[counter]) * c[m];
+                                        ) * dj[counter] * c[m];
                                     ++counter;
 
                                 }
@@ -539,7 +543,7 @@ namespace NMOMP2._0
                                             (lam * (1 - v) * (dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
                                             +
                                             (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
-                                        ) * Math.Abs(dj[counter]) * c[m];
+                                        ) * dj[counter] * c[m];
                                     ++counter;
                                 }
                                 sum *= c[l];
@@ -572,7 +576,7 @@ namespace NMOMP2._0
                                     ( lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 1]) )
                                       +
                                     ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 0]) )    
-                                    ) * Math.Abs(dj[counter]) * c[m];
+                                    ) * dj[counter] * c[m];
                                 ++counter;
                             }
                             sum *= c[l];
@@ -604,7 +608,7 @@ namespace NMOMP2._0
                                     (lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 2]))
                                       +
                                     (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 0]))
-                                    ) * Math.Abs(dj[counter]) * c[m];
+                                    ) * dj[counter] * c[m];
                                 ++counter;
                             }
                             sum *= c[l];
@@ -636,7 +640,7 @@ namespace NMOMP2._0
                                     (lam * v * (dfixyz[counter, i, 1] * dfixyz[counter, j, 2]))
                                       +
                                     (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 1]))
-                                    ) * Math.Abs(dj[counter]) * c[m];
+                                    ) * dj[counter] * c[m];
                                 ++counter;
                             }
                             sum *= c[l];
@@ -712,11 +716,13 @@ namespace NMOMP2._0
         {
             double[,,] DXYZET;
 
+            int site = 5;
+
             int loadElementsCount = m * n;
             int start = nel - loadElementsCount;
             Console.WriteLine($"{start} {nel}");
             for (int number = start; number < nel; number++)
-            {            
+            {
                 DXYZET = new double[3, 2, 9];
 
                 int[] coordinates = NT[number];
@@ -739,7 +745,7 @@ namespace NMOMP2._0
                             sum = 0;
                             for (int l = 0; l < 8; l++)
                             {
-                                globalCoordinate = AKT[coordinates[PAdapter[5][l]]][i];
+                                globalCoordinate = AKT[coordinates[PAdapter[site][l]]][i];
                                 diPsi = DPSITE[k, j, l];
                                 sum += globalCoordinate * diPsi;
                             }
@@ -750,7 +756,7 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = -0.03;
+                double presure = 0.1;
 
                 double[] f2 = new double[8];
 
@@ -772,7 +778,7 @@ namespace NMOMP2._0
 
                 for (int i = 0; i < 8; i++)
                 {
-                    F[coordinates[PAdapter[5][i]] * 3 + 2] += f2[i];
+                    F[coordinates[PAdapter[site][i]] * 3 + 2] += f2[i];
                 }
             }
         }
@@ -780,12 +786,14 @@ namespace NMOMP2._0
         private void getResult()
         {
             double[] result = Gaussian.Solve(MG, F);
+            Console.WriteLine("To files");
             double[][] AKTres = new double[nqp][];
             for (int i = 0; i < nqp; i++)
             {
                 double[] prev = AKT[i];
                 double[] point = result.Skip(i * 3).Take(3).ToArray();
-                AKTres[i] = new double[3] { Math.Round(prev[0] + point[0], 2), Math.Round(prev[1] + point[1], 2), Math.Round(prev[2] + point[2], 2) };
+                AKTres[i] = new double[3] { Math.Round(prev[0] + point[0], 4), Math.Round(prev[1] + point[1], 4), Math.Round(prev[2] + point[2], 4) };
+                //AKTres[i] = new double[3] {prev[0] + point[0], prev[1] + point[1], prev[2] + point[2] };
             }
 
             using (StreamWriter sw = new StreamWriter("C:\\Folder\\WebGl\\src\\points.txt", false, System.Text.Encoding.Default))

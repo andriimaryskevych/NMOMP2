@@ -28,7 +28,7 @@ namespace NMOMP2._0
         {
             double result;
             double[] coord = adapter[i];
-            result = ONE_FOURTH *
+            result = ONE_FOURTH * 
                      (1.0 + tau * coord[1]) *
                      coord[0] *
                      (2.0 * eta * coord[0] + tau * coord[1]);
@@ -84,11 +84,11 @@ namespace NMOMP2._0
         // functinons delegate calculation to more specified functions depending on their index 
         private static double diEta(int i, double eta, double tau)
         {
-            return i < 4 ? diEtaFirst(i, eta, tau) : i % 2 == 0 ? diEtaSecond(i, eta, tau) : diEtaThird(i, eta, tau);
+            return i < 4 ? diEtaFirst(i, eta, tau) : (i == 4 || i == 6) ? diEtaSecond(i, eta, tau) : diEtaThird(i, eta, tau);
         }
         private static double diTau(int i, double eta, double tau)
         {
-            return i < 4 ? diTauFirst(i, eta, tau) : i % 2 == 0 ? diTauSecond(i, eta, tau) : diTauThird(i, eta, tau);
+            return i < 4 ? diTauFirst(i, eta, tau) : (i == 4 || i == 6) ? diTauSecond(i, eta, tau) : diTauThird(i, eta, tau);
         }
 
         public static double getDiPsi(int variable, int i, double eta, double tau)
@@ -135,7 +135,7 @@ namespace NMOMP2._0
 
         public static double getPsi(int i, double eta, double tau)
         {
-            return i < 4 ? firstPsi(i, eta, tau) : i % 2 == 0 ? secondPsi(i, eta, tau) : thirdPsi(i, eta, tau);
+            return i < 4 ? firstPsi(i, eta, tau) : (i == 4 || i == 6) ? secondPsi(i, eta, tau) : thirdPsi(i, eta, tau);
         }
     }
 }
