@@ -14,7 +14,7 @@ namespace NMOMP2._0
         {
             //Testing test = new Testing();
 
-            FiniteElementMethod solve = new FiniteElementMethod(100, 100, 100, 2, 2, 20, 0.3);
+            FiniteElementMethod solve = new FiniteElementMethod(100, 100, 200, 4, 4, 20, 0.49);
             solve.Start();
 
             //var v = new { Amount = 108, Message = "Hello" };

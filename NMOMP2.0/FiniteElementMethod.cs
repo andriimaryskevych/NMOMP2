@@ -28,7 +28,7 @@ namespace NMOMP2._0
         public int n;
         public int k;
 
-        public double E = 10;
+        public double E = 15;
         public double v;
         public double lam;
         public double mu;
@@ -111,6 +111,7 @@ namespace NMOMP2._0
             createNT();
             getMG();
             Console.WriteLine(isSymetricMG());
+            //Console.WriteLine(isMgGreaterThanZero());
             improveMG();
             createPSI();
             createF();
@@ -466,12 +467,12 @@ namespace NMOMP2._0
                                             ( lam * (1 - v) * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0]) )
                                             +
                                             ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2])) 
-                                        ) * dj[counter] * c[m];
+                                        ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                     ++counter;
                                 }
-                                sum *= c[l];
+                                //sum *= c[l];
                             }
-                            sum *= c[k];
+                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -504,13 +505,13 @@ namespace NMOMP2._0
                                             (lam * (1 - v) * (dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
                                             +
                                             (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
-                                        ) * dj[counter] * c[m];
+                                        ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                     ++counter;
 
                                 }
-                                sum *= c[l];
+                                //sum *= c[l];
                             }
-                            sum *= c[k];
+                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -543,12 +544,12 @@ namespace NMOMP2._0
                                             (lam * (1 - v) * (dfixyz[counter, i, 2] * dfixyz[counter, j, 2]))
                                             +
                                             (mu * (dfixyz[counter, i, 0] * dfixyz[counter, j, 0] + dfixyz[counter, i, 1] * dfixyz[counter, j, 1]))
-                                        ) * dj[counter] * c[m];
+                                        ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                     ++counter;
                                 }
-                                sum *= c[l];
+                                //sum *= c[l];
                             }
-                            sum *= c[k];
+                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -576,12 +577,12 @@ namespace NMOMP2._0
                                     ( lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 1]) )
                                       +
                                     ( mu * (dfixyz[counter, i, 1] * dfixyz[counter, j, 0]) )    
-                                    ) * dj[counter] * c[m];
+                                    ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            sum *= c[l];
+                            //sum *= c[l];
                         }
-                        sum *= c[k];
+                        //sum *= c[k];
                     }
                     res[i, j] = sum;
                     
@@ -608,12 +609,12 @@ namespace NMOMP2._0
                                     (lam * v * (dfixyz[counter, i, 0] * dfixyz[counter, j, 2]))
                                       +
                                     (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 0]))
-                                    ) * dj[counter] * c[m];
+                                    ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            sum *= c[l];
+                            //sum *= c[l];
                         }
-                        sum *= c[k];
+                        //sum *= c[k];
                     }
                     res[i, j] = sum;
 
@@ -640,12 +641,12 @@ namespace NMOMP2._0
                                     (lam * v * (dfixyz[counter, i, 1] * dfixyz[counter, j, 2]))
                                       +
                                     (mu * (dfixyz[counter, i, 2] * dfixyz[counter, j, 1]))
-                                    ) * dj[counter] * c[m];
+                                    ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            sum *= c[l];
+                            //sum *= c[l];
                         }
-                        sum *= c[k];
+                        //sum *= c[k];
                     }
                     res[i, j] = sum;
 
@@ -682,6 +683,18 @@ namespace NMOMP2._0
             return true;
         }
 
+        private bool isMgGreaterThanZero()
+        {
+            for (int i = 0; i < nqp * 3; i++)
+            {
+                if (MG[i, i] < 0)
+                {
+                    Console.WriteLine(i);
+                }
+            }
+            return true;
+        }
+
         private void improveMG()
         {
             int index;
@@ -693,6 +706,7 @@ namespace NMOMP2._0
                     MG[index + j, index + j] = Globals.BIG_NUMBER;
                 }
             }
+
         }
 
         private void createPSI()
@@ -756,7 +770,7 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = 0.1;
+                double presure = -7;
 
                 double[] f2 = new double[8];
 
@@ -768,18 +782,22 @@ namespace NMOMP2._0
                     {
                         for (int n = 0; n < 3; n++)
                         {
-                            sum += presure * (DXYZET[0, 0, counter] * DXYZET[1, 1, counter] - DXYZET[1, 0, counter] * DXYZET[0, 1, counter]) * PSIET[i, counter] * c[n];
+                            sum += presure * 
+                                (DXYZET[0, 0, counter] * DXYZET[1, 1, counter] - DXYZET[1, 0, counter] * DXYZET[0, 1, counter]) *
+                                PSIET[i, counter]
+                                * c[n] * c[m];
                             ++counter;
                         }
-                        sum *= c[m];
                     }
                     f2[i] = sum;
                 }
 
                 for (int i = 0; i < 8; i++)
                 {
+                    Console.WriteLine(f2[i]);
                     F[coordinates[PAdapter[site][i]] * 3 + 2] += f2[i];
                 }
+                Console.WriteLine();
             }
         }
 
