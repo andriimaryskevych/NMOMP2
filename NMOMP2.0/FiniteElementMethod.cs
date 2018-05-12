@@ -779,7 +779,7 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = -0.3;
+                double presure = -0.5;
 
                 double[] f2 = new double[8];
 
@@ -922,7 +922,7 @@ namespace NMOMP2._0
                     {
                         for (int k = 0; k < 3; k++)
                         {
-                            col[k] = DFIABG[i, k, phi];
+                            col[k] = DFIABG_P[i, k, phi];
                         }
                         double[,] matrix = new double[3, 3] {
                             { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
@@ -948,7 +948,7 @@ namespace NMOMP2._0
                             sum = 0;
                             for (int l = 0; l < 20; l++)
                             {
-                                sum += U[coordinates[i] * 3 + j] * dfixyz[i, l, k];
+                                sum += U[coordinates[l] * 3 + j] * dfixyz[i, l, k];
                             }
                             duxyz[i, j, k] = sum;
                         }
@@ -962,7 +962,7 @@ namespace NMOMP2._0
                     {
                         for (int k = 0; k < 3; k++)
                         {
-                            SUM[i][j, k] += duxyz[i, j, k];
+                            SUM[coordinates[i]][j, k] += duxyz[i, j, k];
                         }
                     }
                 }            
@@ -990,6 +990,15 @@ namespace NMOMP2._0
                 TENSOR[i] = getMainPressure(sigma[i]);
             }
 
+
+            for (int i = 0; i < nqp; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    Console.WriteLine(TENSOR[i][j]);
+                }
+                Console.WriteLine();
+            }
             Console.WriteLine("Tensor found");
         }
 
