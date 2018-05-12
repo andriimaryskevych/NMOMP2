@@ -79,6 +79,29 @@ namespace NMOMP2._0
         }
         public static double[,,] DFIABG = countDFIABG();
 
+        private static double[,,] countDFIABG_Pressure()
+        {
+            double[,,] result = new double[20, 3, 20];
+            double[][] nodes = new SquareGenerator(-1, 0, 1).getItInSingleDArray();
+
+            // i stands for number of node in standart square
+            // local stands for local variable, like 0 is alpha...
+            // k stands for i-th function
+            for (int i = 0; i < 20; i++)
+            {
+                for (int local = 0; local < 3; local++)
+                {
+                    for (int k = 0; k < 20; k++)
+                    {
+                        result[i, local, k] = FI.getDiFi(local, k, nodes[i][0], nodes[i][1], nodes[i][2]);
+                    }
+                }
+            }
+
+            return result;
+        }
+        public static double[,,] DFIABG_P = countDFIABG_Pressure();
+
         private static double[][] smallGaussNodes()
         {
             double[][] res = new double[9][];

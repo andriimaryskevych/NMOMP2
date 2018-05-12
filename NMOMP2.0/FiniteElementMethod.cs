@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.IO;
 using Newtonsoft.Json;
+using MathNet.Numerics.LinearAlgebra;
+using System.Diagnostics;
 
 namespace NMOMP2._0
 {
@@ -28,11 +30,12 @@ namespace NMOMP2._0
         public int n;
         public int k;
 
-        public double E = 15;
+        public double E = 1.0;
         public double v;
         public double lam;
         public double mu;
 
+        public Stopwatch globalTimer = new Stopwatch();
 
         public int nqp;
         // I changed order here:
@@ -52,6 +55,7 @@ namespace NMOMP2._0
 
         public double[][] GaussNodes = Globals.GaussNodes;
         public double[,,] DFIABG = Globals.DFIABG;
+        public double[,,] DFIABG_P = Globals.DFIABG_P;
 
         public double[] c = new double[3] { 5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0 };
 
@@ -72,8 +76,12 @@ namespace NMOMP2._0
         private double SCALE_Y;
         private double SCALE_Z;
 
+        private double[] U;
+        private double[][] TENSOR; 
         public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k, double _v)
         {
+            globalTimer.Start();
+
             x = _x;
             y = _y;
             z = _z;
@@ -110,12 +118,13 @@ namespace NMOMP2._0
             createZP();
             createNT();
             getMG();
-            Console.WriteLine(isSymetricMG());
+            //Console.WriteLine(isSymetricMG());
             //Console.WriteLine(isMgGreaterThanZero());
             improveMG();
             createPSI();
             createF();
             getResult();
+            createPressureVector();
         }
 
         private void fillMatrixWithMainVertexes()
@@ -435,11 +444,11 @@ namespace NMOMP2._0
             //            Console.BackgroundColor = ConsoleColor.Blue;
             //            Console.ForegroundColor = ConsoleColor.White;
             //        }
-            //        Console.Write($"{Math.Round(MG[i,j], 2), 6}");                    
+            //        Console.Write($"{Math.Round(MG[i, j], 2),6}");
             //        Console.ResetColor();
             //    }
             //    Console.WriteLine();
-            //}            
+            //}
         }
 
         private double[,] one_one(double[,,] dfixyz, double[] dj)
@@ -734,7 +743,7 @@ namespace NMOMP2._0
 
             int loadElementsCount = m * n;
             int start = nel - loadElementsCount;
-            Console.WriteLine($"{start} {nel}");
+            //Console.WriteLine($"{start} {nel}");
             for (int number = start; number < nel; number++)
             {
                 DXYZET = new double[3, 2, 9];
@@ -770,7 +779,7 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = -7;
+                double presure = -0.3;
 
                 double[] f2 = new double[8];
 
@@ -794,22 +803,31 @@ namespace NMOMP2._0
 
                 for (int i = 0; i < 8; i++)
                 {
-                    Console.WriteLine(f2[i]);
                     F[coordinates[PAdapter[site][i]] * 3 + 2] += f2[i];
                 }
-                Console.WriteLine();
             }
         }
 
         private void getResult()
         {
-            double[] result = Gaussian.Solve(MG, F);
+            globalTimer.Stop();
+            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms is needed to calculate MG and F");
+
+            globalTimer.Reset();
+            globalTimer.Start();
+
+            U = Gaussian.Solve(MG, F);
+
+            globalTimer.Stop();
+
+            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms is needed to solve lineat equation system {F.Length}x{F.Length}");
+
             Console.WriteLine("To files");
             double[][] AKTres = new double[nqp][];
             for (int i = 0; i < nqp; i++)
             {
                 double[] prev = AKT[i];
-                double[] point = result.Skip(i * 3).Take(3).ToArray();
+                double[] point = U.Skip(i * 3).Take(3).ToArray();
                 AKTres[i] = new double[3] { Math.Round(prev[0] + point[0], 4), Math.Round(prev[1] + point[1], 4), Math.Round(prev[2] + point[2], 4) };
                 //AKTres[i] = new double[3] {prev[0] + point[0], prev[1] + point[1], prev[2] + point[2] };
             }
@@ -823,6 +841,183 @@ namespace NMOMP2._0
             {
                 sw.WriteLine(JsonConvert.SerializeObject((from a in AKT select new { x = a[0], y = a[1], z = a[2], })));
             }
+        }
+
+        private void createPressureVector()
+        {
+            // Currently I have MG, F and U calculated
+            // Now I have 9 steps to reproduce to calcularte pressure vector
+
+
+            // step 1,2,3
+
+            // defined once and used for each finite element
+            double[,,] dxyzabg = new double[3, 3, 20];
+            double[,,] dfixyz = new double[20, 20, 3];
+            double[,,] duxyz = new double[20, 3, 3];
+
+            double[][,] SUM = new double[nqp][,];
+            for (int i = 0; i < nqp; i++)
+            {
+                SUM[i] = new double[3,3];
+            }
+
+            double[][] sigma = new double[nqp][];
+
+            TENSOR = new double[nqp][];
+
+            double[] amount = new double[nqp];
+            int[] coordinates;
+
+            // calc number of entries for each node
+            for (int number = 0; number < nel; number++)
+            {
+                coordinates = NT[number];
+                for (int j = 0; j < 20; j++)
+                {
+                    amount[coordinates[j]]++;
+                }
+            }
+
+            // Fill sum matrix
+            for (int number = 0; number < nel; number++)
+            {
+                coordinates = NT[number];
+
+                // calc dxyzabg
+                double globalCoordinate = 0;
+                double diFi = 0;
+                double sum = 0;
+
+                // i stands for global coordinate
+                // j for local
+                // k for gaussNode
+                // l for i-th function
+                for (int i = 0; i < 3; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        for (int k = 0; k < 20; k++)
+                        {
+                            sum = 0;
+                            for (int l = 0; l < 20; l++)
+                            {
+                                globalCoordinate = AKT[coordinates[l]][i];
+                                diFi = DFIABG_P[k, j, l];
+                                sum += globalCoordinate * diFi;
+                            }
+                            dxyzabg[i, j, k] = sum;
+                        }
+                    }
+                }
+                
+                // calc dfixyz
+                // col is free column
+                double[] col = new double[3];
+                // i stands for gausNode
+                // phi stands for i-th function
+                for (int i = 0; i < 20; i++)
+                {
+                    for (int phi = 0; phi < 20; phi++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            col[k] = DFIABG[i, k, phi];
+                        }
+                        double[,] matrix = new double[3, 3] {
+                            { dxyzabg[0,0,i], dxyzabg[1,0,i], dxyzabg[2,0,i] },
+                            { dxyzabg[0,1,i], dxyzabg[1,1,i], dxyzabg[2,1,i] },
+                            { dxyzabg[0,2,i], dxyzabg[1,2,i], dxyzabg[2,2,i] }
+                        };
+                        double[] gaussianSolve = Gaussian.Solve(matrix, col);
+
+                        for (int k = 0; k < 3; k++)
+                        {
+                            dfixyz[i, phi, k] = gaussianSolve[k];
+                        }
+                    }
+                }
+
+                // calc duxyz
+                for (int i = 0; i < 20; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            sum = 0;
+                            for (int l = 0; l < 20; l++)
+                            {
+                                sum += U[coordinates[i] * 3 + j] * dfixyz[i, l, k];
+                            }
+                            duxyz[i, j, k] = sum;
+                        }
+                    }
+                }
+
+                // calc all sums: in each global point add all 9 values
+                for (int i = 0; i < 20; i++)
+                {
+                    for (int j = 0; j < 3; j++)
+                    {
+                        for (int k = 0; k < 3; k++)
+                        {
+                            SUM[i][j, k] += duxyz[i, j, k];
+                        }
+                    }
+                }            
+            }
+
+            // get the avarage for each point
+            for (int i = 0; i < nqp; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int k = 0; k < 3; k++)
+                    {
+                        SUM[i][j, k] /= amount[i];
+                    }
+                }
+            }
+
+            for (int i = 0; i < nqp; i++)
+            {
+                sigma[i] = getSigma(SUM[i]);
+            }
+
+            for (int i = 0; i < nqp; i++)
+            {
+                TENSOR[i] = getMainPressure(sigma[i]);
+            }
+
+            Console.WriteLine("Tensor found");
+        }
+
+        private double[] getSigma(double[,] u)
+        {
+            double[] res = new double[6];
+
+            res[0] = lam * ( (1 - v) * u[0, 0] + v * (u[1, 1] + u[2, 2]) );
+            res[1] = lam * ( (1 - v) * u[1, 1] + v * (u[0, 0] + u[2, 2]) );
+            res[2] = lam * ( (1 - v) * u[2, 2] + v * (u[0, 0] + u[1, 1]) );
+            res[3] = mu * (u[0, 1] + u[1, 0]);
+            res[3] = mu * (u[1, 2] + u[2, 1]);
+            res[3] = mu * (u[0, 2] + u[2, 0]);
+
+            return res;
+        }
+
+        private double[] getMainPressure(double[] sigma)
+        {
+            double[] res = new double[3];
+
+            res[0] = sigma[0] + sigma[1] + sigma[2];
+            res[1] = sigma[0] * sigma[1] + sigma[0] * sigma[2] + sigma[1] * sigma[2] -
+                (Math.Pow(sigma[3], 2) + Math.Pow(sigma[4], 2) + Math.Pow(sigma[5], 2));
+            res[2] = sigma[0] * sigma[1] * sigma[2] + 2 * sigma[3] * sigma[4] * sigma[5] -
+                ( sigma[0] * Math.Pow(sigma[4], 2) + sigma[1] * Math.Pow(sigma[5], 2) + sigma[2] * Math.Pow(sigma[3], 2));
+
+            return res;
         }
     }
 }
