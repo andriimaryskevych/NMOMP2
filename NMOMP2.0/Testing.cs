@@ -37,16 +37,16 @@ namespace NMOMP2._0
 
             // #3: Testing Functions
 
-            //double[][] fi = new SquareGenerator(-1, 0, 1).getItInSingleDArray();
-            //for (int i = 0; i < 20; i++)
-            //{
-            //    double[] coord = fi[i];
-            //    for (int j = 0; j < 20; j++)
-            //    {
-            //        Console.Write(FI.getFi(j, coord[0], coord[1], coord[2]));
-            //    }
-            //    Console.WriteLine();
-            //}
+            double[][] fi = new SquareGenerator(-1, 0, 1).getItInSingleDArray();
+            for (int i = 0; i < 20; i++)
+            {
+                double[] coord = fi[i];
+                for (int j = 0; j < 20; j++)
+                {
+                    Console.Write(FI.getFi(j, coord[0], coord[1], coord[2]));
+                }
+                Console.WriteLine();
+            }
 
 
             // #4: Gauss nodes
@@ -206,7 +206,7 @@ namespace NMOMP2._0
             //    }
             //    Console.WriteLine();
             //}
-            
+
         }
     }
 }

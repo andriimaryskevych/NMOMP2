@@ -779,7 +779,7 @@ namespace NMOMP2._0
 
                 // not the best code below
 
-                double presure = -0.5;
+                double presure = -0.3;
 
                 double[] f2 = new double[8];
 
@@ -847,7 +847,6 @@ namespace NMOMP2._0
         {
             // Currently I have MG, F and U calculated
             // Now I have 9 steps to reproduce to calcularte pressure vector
-
 
             // step 1,2,3
 
@@ -991,15 +990,16 @@ namespace NMOMP2._0
             }
 
 
-            for (int i = 0; i < nqp; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    Console.WriteLine(TENSOR[i][j]);
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine("Tensor found");
+            //for (int i = 0; i < nqp; i++)
+            //{
+            //    Console.WriteLine(i);
+            //    for (int j = 0; j < 3; j++)
+            //    {
+            //        Console.WriteLine(TENSOR[i][j]);
+            //    }
+            //    Console.WriteLine();
+            //}
+            //Console.WriteLine("Tensor found");
         }
 
         private double[] getSigma(double[,] u)
@@ -1010,8 +1010,8 @@ namespace NMOMP2._0
             res[1] = lam * ( (1 - v) * u[1, 1] + v * (u[0, 0] + u[2, 2]) );
             res[2] = lam * ( (1 - v) * u[2, 2] + v * (u[0, 0] + u[1, 1]) );
             res[3] = mu * (u[0, 1] + u[1, 0]);
-            res[3] = mu * (u[1, 2] + u[2, 1]);
-            res[3] = mu * (u[0, 2] + u[2, 0]);
+            res[4] = mu * (u[1, 2] + u[2, 1]);
+            res[5] = mu * (u[0, 2] + u[2, 0]);
 
             return res;
         }
