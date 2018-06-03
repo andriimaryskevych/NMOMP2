@@ -118,8 +118,6 @@ namespace NMOMP2._0
             createZP();
             createNT();
             getMG();
-            //Console.WriteLine(isSymetricMG());
-            //Console.WriteLine(isMgGreaterThanZero());
             improveMG();
             createPSI();
             createF();
@@ -811,7 +809,7 @@ namespace NMOMP2._0
         private void getResult()
         {
             globalTimer.Stop();
-            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms is needed to calculate MG and F");
+            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms needed to calculate MG and F");
 
             globalTimer.Reset();
             globalTimer.Start();
@@ -820,7 +818,7 @@ namespace NMOMP2._0
 
             globalTimer.Stop();
 
-            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms is needed to solve lineat equation system {F.Length}x{F.Length}");
+            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms needed to solve lineat equation system {F.Length}x{F.Length}");
 
             Console.WriteLine("To files");
             double[][] AKTres = new double[nqp][];
