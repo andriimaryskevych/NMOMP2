@@ -373,7 +373,7 @@ namespace NMOMP2._0
                         MG[globalX, globalY] += mge[x, y][localX, localY];
                     }
                 }
-            });
+            };
             Console.WriteLine("Got MG");
         }
 
