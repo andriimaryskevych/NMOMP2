@@ -51,10 +51,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DTO\Parameters.cs" />
+    <Compile Include="Factories\ParameterExtraction.cs" />
     <Compile Include="FI.cs" />
     <Compile Include="FiniteElementMethod.cs" />
     <Compile Include="Gaussian.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="Interfaces\ParameterExtractor\DefaultExtractor.cs" />
+    <Compile Include="Interfaces\ParameterExtractor\IParameterExtractor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PSI.cs" />

@@ -8,6 +8,7 @@ using System.IO;
 using Newtonsoft.Json;
 using MathNet.Numerics.LinearAlgebra;
 using System.Diagnostics;
+using NMOMP2._0.DTO;
 
 namespace NMOMP2._0
 {
@@ -77,20 +78,19 @@ namespace NMOMP2._0
 
         private double[] U;
         private double[][] TENSOR; 
-        public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k, double _v, double _E, double _presure)
+        public FiniteElementMethod(Parameters parameters)
         {
+            x = parameters.sizeX;
+            y = parameters.sizeY;
+            z = parameters.sizeZ;
 
-            x = _x;
-            y = _y;
-            z = _z;
+            m = parameters.xAxisFEMCount;
+            n = parameters.yAxisFEMCount;
+            k = parameters.zAxisFEMCount;
 
-            m = _m;
-            n = _n;
-            k = _k;
-
-            v = _v;
-            E = _E;
-            presure = _presure;
+            v = parameters.puasson;
+            E = parameters.jung;
+            presure = parameters.pressure;
 
             lam = E / ((1 + v) * (1 - 2 * v));
             mu = E / (2 * (1 + v));
