@@ -20,3 +20,15 @@ C:\Users\andri\Desktop\Диплом\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.csprojR
 C:\Users\andri\Desktop\Диплом\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.csproj.CoreCompileInputs.cache
 C:\Users\andri\Desktop\Диплом\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.exe
 C:\Users\andri\Desktop\Диплом\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.pdb
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\NMOMP2.0.exe.config
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\NMOMP2.0.exe
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\NMOMP2.0.pdb
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\MathNet.Numerics.dll
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\Newtonsoft.Json.dll
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\MathNet.Numerics.xml
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\bin\Debug\Newtonsoft.Json.xml
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.csprojResolveAssemblyReference.cache
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.csproj.CoreCompileInputs.cache
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.csproj.CopyComplete
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.exe
+C:\Users\andri\Desktop\Diplom\NMOMP2.0\NMOMP2.0\obj\Debug\NMOMP2.0.pdb
