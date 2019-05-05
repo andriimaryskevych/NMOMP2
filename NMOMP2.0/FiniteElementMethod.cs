@@ -30,12 +30,11 @@ namespace NMOMP2._0
         public int n;
         public int k;
 
-        public double E = 1.0;
+        public double E;
         public double v;
         public double lam;
         public double mu;
-
-        public Stopwatch globalTimer = new Stopwatch();
+        public double presure;
 
         public int nqp;
         // I changed order here:
@@ -78,9 +77,8 @@ namespace NMOMP2._0
 
         private double[] U;
         private double[][] TENSOR; 
-        public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k, double _v)
+        public FiniteElementMethod(int _x, int _y, int _z, int _m, int _n, int _k, double _v, double _E, double _presure)
         {
-            globalTimer.Start();
 
             x = _x;
             y = _y;
@@ -91,6 +89,9 @@ namespace NMOMP2._0
             k = _k;
 
             v = _v;
+            E = _E;
+            presure = _presure;
+
             lam = E / ((1 + v) * (1 - 2 * v));
             mu = E / (2 * (1 + v));
 
@@ -114,6 +115,7 @@ namespace NMOMP2._0
             fillMatrixWithIntermidiateVertexes();
             initMatrix();
             createAKT();
+            returnStartPositions();
             createZU();
             createZP();
             createNT();
@@ -194,6 +196,16 @@ namespace NMOMP2._0
                     }
                 }
             }
+        }
+
+        private void returnStartPositions()
+        {
+            using (StreamWriter sw = new StreamWriter("start.txt", false, System.Text.Encoding.Default))
+            {
+                sw.WriteLine(JsonConvert.SerializeObject((from a in AKT select new { x = a[0], y = a[1], z = a[2], })));
+            }
+
+            Console.Write("Generated start.txt");
         }
 
         private void createZU()
@@ -359,94 +371,10 @@ namespace NMOMP2._0
                         globalY = (NT[number][localY]) * 3 + y;
 
                         MG[globalX, globalY] += mge[x, y][localX, localY];
-
-                        // Set j < i and get upperDiagonal Matrix
-                        //if (globalX < globalY)
-                        //{
-                        //    MG[globalX, globalY] += mge[x, y][localX, localY];
-                        //}
-                        //else
-                        //{
-                        //    MG[globalY, globalX] += mge[x, y][localX, localY];
-                        //}
-
-
-                        //if (i == j)
-                        //{
-                        //    Console.WriteLine(mge[x, y][localX, localY]);
-                        //}
-                        //if (i == 1 && j == 2)
-                        //{
-                        //    Console.WriteLine(mge[x, y][localX, localY]);
-                        //}
-                        //if (i == 2 && j == 1)
-                        //{
-                        //    Console.WriteLine(mge[x, y][localX, localY]);
-                        //}
                     }
                 }
-               
-                //if (number == 0)
-                //{
-                //    for (int i = 0; i < 9; i++)
-                //    {
-                //        for (int j = 0; j < 9; j++)
-                //        {
-                //            Console.Write($"{MG[i, j],20}");
-                //        }
-                //        Console.WriteLine();
-                //    }
-                //}
-                //for (int i = 0; i < nqp; i++)
-                //{
-                //    for (int j = 0; j < nqp; j++)
-                //    {
-                //        if (MG[i, j] != MG[j, i])
-                //        {
-                //            Console.WriteLine("Bleaaaaty");
-                //        }
-                //    }
-                //}
-                //for (int i = 0; i < 60; i++)
-                //{
-                //    Console.Write(new string(' ', i));
-                //    for (int j = i; j < 60; j++)
-                //    {
-                //        Console.Write(1);
-                //    }
-                //    Console.WriteLine();
-                //}
-                //double[,] m11 = one_one(dfixyz, dj);
-                //double[,] m22 = two_two(dfixyz, dj);
-                //double[,] m33 = three_three(dfixyz, dj);
-                //double[,] m12 = one_two(dfixyz, dj);
-                //double[,] m13 = one_three(dfixyz, dj);
-                //double[,] m23 = two_three(dfixyz, dj);
-                // consolelogging results of calculations
-                //for (int i = 0; i < 20; i++)
-                //{
-                //    for (int j = 0; j < 20; j++)
-                //    {
-                //        Console.Write(value[i, j] == 0 ? 0 : 1);
-                //    }
-                //    Console.WriteLine();
-                //}
-            }
-
-            //for (int i = 0; i < 30; i++)
-            //{
-            //    for (int j = 0; j < 30; j++)
-            //    {
-            //        if (i == j)
-            //        {
-            //            Console.BackgroundColor = ConsoleColor.Blue;
-            //            Console.ForegroundColor = ConsoleColor.White;
-            //        }
-            //        Console.Write($"{Math.Round(MG[i, j], 2),6}");
-            //        Console.ResetColor();
-            //    }
-            //    Console.WriteLine();
-            //}
+            });
+            Console.WriteLine("Got MG");
         }
 
         private double[,] one_one(double[,,] dfixyz, double[] dj)
@@ -477,9 +405,7 @@ namespace NMOMP2._0
                                         ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                     ++counter;
                                 }
-                                //sum *= c[l];
                             }
-                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -516,9 +442,7 @@ namespace NMOMP2._0
                                     ++counter;
 
                                 }
-                                //sum *= c[l];
                             }
-                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -554,9 +478,7 @@ namespace NMOMP2._0
                                         ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                     ++counter;
                                 }
-                                //sum *= c[l];
                             }
-                            //sum *= c[k];
                         }
                         res[i, j] = sum;
                     }
@@ -587,9 +509,7 @@ namespace NMOMP2._0
                                     ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            //sum *= c[l];
                         }
-                        //sum *= c[k];
                     }
                     res[i, j] = sum;
                     
@@ -619,9 +539,7 @@ namespace NMOMP2._0
                                     ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            //sum *= c[l];
                         }
-                        //sum *= c[k];
                     }
                     res[i, j] = sum;
 
@@ -651,9 +569,7 @@ namespace NMOMP2._0
                                     ) * Math.Abs(dj[counter]) * c[m] * c[l] * c[k];
                                 ++counter;
                             }
-                            //sum *= c[l];
                         }
-                        //sum *= c[k];
                     }
                     res[i, j] = sum;
 
@@ -741,7 +657,6 @@ namespace NMOMP2._0
 
             int loadElementsCount = m * n;
             int start = nel - loadElementsCount;
-            //Console.WriteLine($"{start} {nel}");
             for (int number = start; number < nel; number++)
             {
                 DXYZET = new double[3, 2, 9];
@@ -776,9 +691,7 @@ namespace NMOMP2._0
                 }
 
                 // not the best code below
-
-                double presure = -0.3;
-
+                
                 double[] f2 = new double[8];
 
                 for (int i = 0; i < 8; i++)
@@ -804,41 +717,28 @@ namespace NMOMP2._0
                     F[coordinates[PAdapter[site][i]] * 3 + 2] += f2[i];
                 }
             }
+            Console.WriteLine("Got F");
+            Console.WriteLine(nqp);
         }
 
         private void getResult()
         {
-            globalTimer.Stop();
-            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms needed to calculate MG and F");
-
-            globalTimer.Reset();
-            globalTimer.Start();
-
             U = Gaussian.Solve(MG, F);
-
-            globalTimer.Stop();
-
-            Console.WriteLine($"{globalTimer.ElapsedMilliseconds} ms needed to solve lineat equation system {F.Length}x{F.Length}");
-
-            Console.WriteLine("To files");
+            
             double[][] AKTres = new double[nqp][];
             for (int i = 0; i < nqp; i++)
             {
                 double[] prev = AKT[i];
                 double[] point = U.Skip(i * 3).Take(3).ToArray();
                 AKTres[i] = new double[3] { Math.Round(prev[0] + point[0], 4), Math.Round(prev[1] + point[1], 4), Math.Round(prev[2] + point[2], 4) };
-                //AKTres[i] = new double[3] {prev[0] + point[0], prev[1] + point[1], prev[2] + point[2] };
             }
 
-            using (StreamWriter sw = new StreamWriter("C:\\Folder\\WebGl\\src\\points.txt", false, System.Text.Encoding.Default))
+            using (StreamWriter sw = new StreamWriter("points.txt", false, System.Text.Encoding.Default))
             {
                 sw.WriteLine(JsonConvert.SerializeObject((from a in AKTres select new { x = a[0], y = a[1], z = a[2], })));
             }
 
-            using (StreamWriter sw = new StreamWriter("C:\\Folder\\WebGl\\src\\start.txt", false, System.Text.Encoding.Default))
-            {
-                sw.WriteLine(JsonConvert.SerializeObject((from a in AKT select new { x = a[0], y = a[1], z = a[2], })));
-            }
+            Console.Write("Generated points.txt");
         }
 
         private void createPressureVector()
@@ -986,18 +886,6 @@ namespace NMOMP2._0
             {
                 TENSOR[i] = getMainPressure(sigma[i]);
             }
-
-
-            //for (int i = 0; i < nqp; i++)
-            //{
-            //    Console.WriteLine(i);
-            //    for (int j = 0; j < 3; j++)
-            //    {
-            //        Console.WriteLine(TENSOR[i][j]);
-            //    }
-            //    Console.WriteLine();
-            //}
-            //Console.WriteLine("Tensor found");
         }
 
         private double[] getSigma(double[,] u)
