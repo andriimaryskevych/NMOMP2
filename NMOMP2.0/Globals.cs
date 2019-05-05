@@ -20,7 +20,7 @@ namespace NMOMP2._0
             {7, new int[]{0,2,2} },
 
             {8,  new int[]{1,0,0} },
-            {9, new int[]{2,1,0} },
+            {9,  new int[]{2,1,0} },
             {10, new int[]{1,2,0} },
             {11, new int[]{0,1,0} },
             
