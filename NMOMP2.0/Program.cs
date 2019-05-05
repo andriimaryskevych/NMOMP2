@@ -12,9 +12,9 @@ namespace NMOMP2._0
     {
         static void Main(string[] args)
         {
-            int x = int.Parse(args[0]);
-            int y = int.Parse(args[1]);
-            int z = int.Parse(args[2]);
+            int size_x = int.Parse(args[0]);
+            int size_y = int.Parse(args[1]);
+            int size_z = int.Parse(args[2]);
 
             int elem_x = int.Parse(args[3]);
             int elem_y = int.Parse(args[4]);
@@ -36,8 +36,21 @@ namespace NMOMP2._0
             //double jung = 1;
             //double pressure = -0.3;
 
-            FiniteElementMethod solve = new FiniteElementMethod(x, y, z, elem_x, elem_y, elem_z, puasson, jung, pressure);
-            solve.Start();
+            FiniteElementMethod fem = new FiniteElementMethod(
+                size_x,
+                size_y,
+                size_z,
+
+                elem_x,
+                elem_y,
+                elem_z,
+
+                puasson,
+                jung,
+                pressure
+            );
+
+            fem.Start();
         }
     }
 }
