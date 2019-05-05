@@ -32,18 +32,6 @@ namespace NMOMP2._0
             //double jung = double.Parse(args[7]);
             //double pressure = double.Parse(args[8]);
 
-            //int x = 1;
-            //int y = 1;
-            //int z = 1;
-            //int size = 3;
-            //int elem_x = size;
-            //int elem_y = size;
-            //int elem_z = size;
-
-            //double puasson = 0.3;
-            //double jung = 1;
-            //double pressure = -0.3;
-
             FiniteElementMethod fem = new FiniteElementMethod(parameters);
 
             fem.Start();
